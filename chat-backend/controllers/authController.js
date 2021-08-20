@@ -33,10 +33,21 @@ exports.login = async (req, res, next) => {
 
 exports.register = async (req, res, next) => {
 
+    try {
+        const user = await User.create(req.body)
+
+        const userWithToken = generateToken(user.get({ raw: true }))
+        return res.send(userWithToken)
+
+    } catch (error) {
+        return res.status(500).json({ message: error.message })
+
+    }
+
 }
 
 const generateToken = (user) => {
-    delete user.password
+    // delete user.password
     const token = jwt.sign(user, config.appKey, { expiresIn: 86400 })
     return { ...user, ...{ token } }
 
